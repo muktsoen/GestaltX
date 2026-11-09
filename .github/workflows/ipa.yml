@@ -1,0 +1,28 @@
+name: Build unsigned IPA
+on:
+  workflow_dispatch:
+  push:
+    branches: [ipa-build]
+jobs:
+  build:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode version
+        run: xcodebuild -version
+      - name: Build
+        run: |
+          xcodebuild -project GestaltX.xcodeproj -target GestaltX -configuration Release \
+            -sdk iphoneos -arch arm64 \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            SYMROOT="$PWD/build" build
+      - name: Package
+        run: |
+          APP=$(find build -name '*.app' -path '*iphoneos*' | head -1)
+          mkdir Payload && cp -R "$APP" Payload/
+          zip -qry GestaltX.ipa Payload
+          ls -la GestaltX.ipa
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GestaltX-ipa
+          path: GestaltX.ipa
