@@ -43,7 +43,7 @@ Signing requires a certificate and provisioning profile with at least one usable
 
 ## Mainland China restrictions
 
-Device → Presets → **Remove Mainland China Restrictions** attempts to enable eSIM, FaceTime Audio (27.3), and other region-restricted features without changing the sales region. Hardware and carrier support are still required; this does not guarantee every feature will work. There is no model or OS version allowlist. The cache layout and target values must match before the two flags can be edited. Review the changes, apply, and restart the device.
+Device → Presets → **Remove Mainland China Restrictions** attempts to enable eSIM, FaceTime Audio (27.3), and other region-restricted features without changing the sales region. Hardware and carrier support are still required; this does not guarantee every feature will work. Cache offsets are automatically resolved from the device’s own MobileGestalt library, with no model or OS version allowlist. The cache UUID, length, validity markers and target values are checked before editing. If the layout cannot be resolved, no changes are written. Review the changes, apply, and restart the device.
 
 On-device original values are saved before applying. Use **Revert** to restore only these two flags, including after reopening the app. Previously modified devices use their earliest recorded values, not an assumed factory default.
 

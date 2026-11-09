@@ -13524,6 +13524,52 @@
           }
         }
       }
+    },
+    "Unable to resolve this device's MobileGestalt cache layout.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to resolve this device's MobileGestalt cache layout."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法解析此设备的 MobileGestalt 缓存布局。"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ساختار حافظهٔ نهان MobileGestalt این دستگاه قابل تشخیص نیست."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось определить структуру кэша MobileGestalt этого устройства."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể phân tích cấu trúc bộ nhớ đệm MobileGestalt của thiết bị này."
+          }
+        },
+        "zh-Hant-HK": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法解析此裝置的 MobileGestalt 快取配置。"
+          }
+        },
+        "zh-Hant-TW": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法解析此裝置的 MobileGestalt 快取配置。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

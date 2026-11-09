@@ -292,5 +292,6 @@
   "Try enabling eSIM, FaceTime Audio (27.3), and other region-restricted features. Hardware and carrier support are required. Restart after applying.": "تلاش برای فعال‌سازی eSIM، تماس صوتی FaceTime (27.3) و دیگر قابلیت‌های محدودشده بر اساس منطقه. پشتیبانی سخت‌افزار و اپراتور لازم است. پس از اعمال، دستگاه را راه‌اندازی مجدد کنید.",
   "The cache layout or values do not match this preset.": "ساختار یا مقادیر حافظهٔ نهان با این تنظیم مطابقت ندارد.",
   "This preset changes unrelated cache bytes.": "این تنظیم بایت‌های نامرتبط حافظهٔ نهان را تغییر می‌دهد.",
-  "Region restriction flags written and verified. Restart the device to apply.": "پرچم‌های محدودیت منطقه نوشته و تأیید شدند. برای اعمال، دستگاه را راه‌اندازی مجدد کنید."
+  "Region restriction flags written and verified. Restart the device to apply.": "پرچم‌های محدودیت منطقه نوشته و تأیید شدند. برای اعمال، دستگاه را راه‌اندازی مجدد کنید.",
+  "Unable to resolve this device's MobileGestalt cache layout.": "ساختار حافظهٔ نهان MobileGestalt این دستگاه قابل تشخیص نیست."
 }

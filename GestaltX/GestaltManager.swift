@@ -236,6 +236,12 @@ final class GestaltManager: ObservableObject {
     private func summarize(_ document: GestaltDocument) -> [String] {
         var lines = ["CacheExtra: \(document.extra.count) keys"]
         if let cacheData = document.root["CacheData"] as? Data { lines.append("CacheData: \(cacheData.count) bytes") }
+        do {
+            let layout = try MobileGestaltCacheLayout.resolve(in: document)
+            lines.append("Cache layout: \(layout.uuid), \(layout.slotCount) slots")
+            lines.append(String(format: "green-tea: index %d, offset 0x%X; not-green-tea: index %d, offset 0x%X",
+                                layout.greenTeaIndex, layout.greenTeaOffset, layout.notGreenTeaIndex, layout.notGreenTeaOffset))
+        } catch { lines.append("Cache offsets: " + error.localizedDescription) }
         if let model = document.artwork["ArtworkDeviceProductDescription"] as? String { lines.append("model name: \(model)") }
         if let subtype = document.artwork["ArtworkDeviceSubType"] { lines.append("subtype: \(describe(subtype))") }
         if let region = document.extra[GestaltKeys.regionCode] as? String { lines.append("region code: \(region)") }

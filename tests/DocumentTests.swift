@@ -47,6 +47,88 @@ final class AccessTrace: @unchecked Sendable {
         }
     }
 
+    static func verifyDynamicCacheLayout() throws {
+        let uuid = "A4A4A4A4-1111-2222-3333-123456789ABC"
+        let address: UInt64 = 0x180100000
+        let keys = ["AAAAAAAAAAAAAAAAAAAAAA", FaceTimeAudioCache.greenTeaKey,
+                    "BBBBBBBBBBBBBBBBBBBBBB", "CCCCCCCCCCCCCCCCCCCCCC",
+                    FaceTimeAudioCache.notGreenTeaKey, "DDDDDDDDDDDDDDDDDDDDDD"]
+        var strings = Data((uuid + "\0").utf8)
+        var pointers: [UInt64] = []
+        for key in keys { pointers.append(address + UInt64(strings.count)); strings.append(contentsOf: (key + "\0").utf8) }
+        var descriptors = Data(repeating: 0, count: keys.count * 64)
+        func put<T: FixedWidthInteger>(_ value: T, into bytes: inout Data, at offset: Int) {
+            var little = value.littleEndian
+            withUnsafeBytes(of: &little) { bytes.replaceSubrange(offset..<(offset + $0.count), with: $0) }
+        }
+        for i in keys.indices {
+            // PAC-tagged data pointers must resolve without dereferencing them.
+            put(pointers[i] | 0xABCD_0000_0000_0000, into: &descriptors, at: i * 64)
+            put(Int16(i), into: &descriptors, at: i * 64 + 0x3A)
+            put(UInt32(11), into: &descriptors, at: i * 64 + 0x3C)
+        }
+        let layout = try MobileGestaltCacheLayout.scan(strings: strings, stringAddress: address, constants: [descriptors])
+        try expect(layout.uuid == uuid && layout.slotCount == 6, "Resolve UUID and slot count from the library query table")
+        try expect(layout.greenTeaOffset == 8 && layout.notGreenTeaOffset == 32,
+                   "Each query gets an independently resolved offset")
+        try expect(layout.validityOffset(for: layout.notGreenTeaIndex) == 52, "Compute validity offsets from this layout's slot count")
+        var cache = Data(repeating: 0, count: layout.byteCount)
+        cache[layout.greenTeaOffset] = 1
+        cache[layout.validityOffset(for: layout.greenTeaIndex)] = 1
+        cache[layout.validityOffset(for: layout.notGreenTeaIndex)] = 1
+        cache[0] = 99
+        let original = try GestaltDocument(data: PropertyListSerialization.data(fromPropertyList: [
+            "CacheUUID": uuid, "CacheData": cache, "CacheExtra": [GestaltKeys.regionCode: "CH"]
+        ], format: .binary, options: 0))
+        var edited = original
+        try edited.setFaceTimeAudio(.enabled, using: layout)
+        try FaceTimeAudioCache.validateEdit(from: original, to: edited, using: layout)
+        try expect(FaceTimeAudioCache.flags(in: edited, using: layout) == .enabled, "Write the dynamically located target bytes")
+        try edited.setFaceTimeAudio(.restricted, using: layout)
+        try expect(edited.matches(original), "Restore dynamic flags without changing other cache bytes or region fields")
+        var ambiguous = descriptors
+        ambiguous.append(descriptors.subdata(in: 64..<128))
+        put(Int16(3), into: &ambiguous, at: descriptors.count + 0x3A)
+        try expectThrows("Reject duplicate descriptors with conflicting indices") {
+            _ = try MobileGestaltCacheLayout.scan(strings: strings, stringAddress: address, constants: [ambiguous])
+        }
+        var wrongType = descriptors
+        put(UInt32(5), into: &wrongType, at: 64 + 0x3C)
+        try expectThrows("Reject non-Boolean target descriptors") {
+            _ = try MobileGestaltCacheLayout.scan(strings: strings, stringAddress: address, constants: [wrongType])
+        }
+        var missing = descriptors
+        put(UInt64(0), into: &missing, at: 64)
+        try expectThrows("Reject missing query references") {
+            _ = try MobileGestaltCacheLayout.scan(strings: strings, stringAddress: address, constants: [missing])
+        }
+        try expectThrows("Reject ambiguous cache UUIDs") {
+            _ = try MobileGestaltCacheLayout.scan(strings: strings + Data("BBBBBBBB-1111-2222-3333-123456789ABC\0".utf8),
+                                                  stringAddress: address, constants: [descriptors])
+        }
+        let invalid = MobileGestaltCacheLayout(uuid: uuid, slotCount: 6, greenTeaIndex: 99, notGreenTeaIndex: 4)
+        try expectThrows("Reject invalid resolved offsets before indexing data") { _ = try FaceTimeAudioCache.validatedData(in: original, using: invalid) }
+        // Optional local-only image/export fixtures are never copied into the repo.
+        if let imagePath = ProcessInfo.processInfo.environment["GX_TEST_MG_IMAGE"] {
+            let image = try PropertyListSerialization.propertyList(from: Data(contentsOf: URL(fileURLWithPath: imagePath)), options: [], format: nil) as! [String: Any]
+            let actual = try MobileGestaltCacheLayout.scan(image: image)
+            try expect(actual.slotCount == 719 && actual.greenTeaIndex == 382 && actual.notGreenTeaIndex == 505,
+                       "Real 24A446 system-library descriptors resolve independently of the old profile")
+            if let exportPath = ProcessInfo.processInfo.environment["GX_TEST_MG_EXPORT"] {
+                let url = URL(fileURLWithPath: exportPath), bytes = try Data(contentsOf: url)
+                let original = try GestaltDocument(data: bytes)
+                let flags = try FaceTimeAudioCache.flags(in: original, using: actual)
+                var edited = original
+                try edited.setFaceTimeAudio(.enabled, using: actual)
+                try FaceTimeAudioCache.validateEdit(from: original, to: edited, using: actual)
+                try edited.setFaceTimeAudio(flags, using: actual)
+                try expect(edited.matches(original), "Actual exported cache round-trips exact original flags with dynamic offsets")
+                try expect(try Data(contentsOf: url) == bytes, "The owner's exported file remains untouched")
+            }
+        }
+        print("PASS: dynamic query-table offsets, PAC pointers, layout sizing, UUID matching, ambiguity rejection and exact-byte restoration.")
+    }
+
     static func verifyFaceTimeAudio(in root: URL) async throws {
         var cache = Data(repeating: 0, count: 6480)
         cache[0xBF8] = 1
@@ -263,6 +345,7 @@ final class AccessTrace: @unchecked Sendable {
         let root = fm.temporaryDirectory.appendingPathComponent("GestaltX-tests-" + UUID().uuidString, isDirectory: true)
         try fm.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? fm.removeItem(at: root) }
+        try verifyDynamicCacheLayout()
         try await verifyFaceTimeAudio(in: root)
         let device = root.appendingPathComponent("device.plist")
         let backups = root.appendingPathComponent("backups", isDirectory: true)

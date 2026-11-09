@@ -292,5 +292,6 @@
   "Try enabling eSIM, FaceTime Audio (27.3), and other region-restricted features. Hardware and carrier support are required. Restart after applying.": "嘗試解除 eSIM、FaceTime 音訊（27.3）等功能限制，仍需硬體與電信業者支援。套用後請重新啟動。",
   "The cache layout or values do not match this preset.": "快取配置或數值與此預設不符。",
   "This preset changes unrelated cache bytes.": "此預設更動了無關的快取位元組。",
-  "Region restriction flags written and verified. Restart the device to apply.": "地區限制標記已寫入並驗證，請重新啟動裝置使其生效。"
+  "Region restriction flags written and verified. Restart the device to apply.": "地區限制標記已寫入並驗證，請重新啟動裝置使其生效。",
+  "Unable to resolve this device's MobileGestalt cache layout.": "無法解析此裝置的 MobileGestalt 快取配置。"
 }

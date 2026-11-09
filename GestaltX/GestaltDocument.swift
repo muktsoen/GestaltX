@@ -106,10 +106,11 @@ struct GestaltDocument: @unchecked Sendable {
         root["CacheExtra"] = updated
     }
 
-    mutating func setFaceTimeAudio(_ flags: FaceTimeAudioFlags) throws {
-        var data = try FaceTimeAudioCache.validatedData(in: self)
-        data[FaceTimeAudioCache.greenTeaOffset] = flags.greenTea ? 1 : 0
-        data[FaceTimeAudioCache.notGreenTeaOffset] = flags.notGreenTea ? 1 : 0
+    mutating func setFaceTimeAudio(_ flags: FaceTimeAudioFlags, using resolvedLayout: MobileGestaltCacheLayout? = nil) throws {
+        let layout = try resolvedLayout ?? MobileGestaltCacheLayout.resolve(in: self)
+        var data = try FaceTimeAudioCache.validatedData(in: self, using: layout)
+        data[layout.greenTeaOffset] = flags.greenTea ? 1 : 0
+        data[layout.notGreenTeaOffset] = flags.notGreenTea ? 1 : 0
         root["CacheData"] = data
     }
 

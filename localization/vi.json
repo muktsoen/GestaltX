@@ -292,5 +292,6 @@
   "Try enabling eSIM, FaceTime Audio (27.3), and other region-restricted features. Hardware and carrier support are required. Restart after applying.": "Thử bật eSIM, âm thanh FaceTime (27.3) và các tính năng bị giới hạn theo khu vực. Vẫn cần phần cứng và nhà mạng hỗ trợ. Khởi động lại sau khi áp dụng.",
   "The cache layout or values do not match this preset.": "Bố cục hoặc giá trị bộ nhớ đệm không khớp với tùy chọn này.",
   "This preset changes unrelated cache bytes.": "Tùy chọn này thay đổi các byte bộ nhớ đệm không liên quan.",
-  "Region restriction flags written and verified. Restart the device to apply.": "Đã ghi và xác minh các cờ giới hạn khu vực. Khởi động lại thiết bị để áp dụng."
+  "Region restriction flags written and verified. Restart the device to apply.": "Đã ghi và xác minh các cờ giới hạn khu vực. Khởi động lại thiết bị để áp dụng.",
+  "Unable to resolve this device's MobileGestalt cache layout.": "Không thể phân tích cấu trúc bộ nhớ đệm MobileGestalt của thiết bị này."
 }

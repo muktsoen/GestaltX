@@ -302,6 +302,7 @@ Try enabling eSIM, FaceTime Audio (27.3), and other region-restricted features. 
 The cache layout or values do not match this preset.	缓存布局或数值与此预设不符。
 This preset changes unrelated cache bytes.	此预设更改了无关的缓存字节。
 Region restriction flags written and verified. Restart the device to apply.	地区限制标记已写入并验证，请重启设备使其生效。
+Unable to resolve this device's MobileGestalt cache layout.	无法解析此设备的 MobileGestalt 缓存布局。
 '''
 entries = {}
 for line in TRANSLATIONS.strip().splitlines():
